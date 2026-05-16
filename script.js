@@ -4,10 +4,39 @@ const MIN_ROWS = 1;
 const MAX_ROWS = 20;
 const DEFAULT_COLS = 3;
 const DOWNLOAD_DELAY = 400;
+const DEFAULT_QUALITY = "lossless";
+
+const EXPORT_PRESETS = {
+  instagram: {
+    label: "IG 1080",
+    maxSize: 1080,
+    mime: "image/jpeg",
+    quality: 0.95,
+    extension: "jpg",
+    helper: "JPG 1080px. Ringan dan sesuai ukuran feed Instagram.",
+  },
+  high: {
+    label: "HD 2160",
+    maxSize: 2160,
+    mime: "image/jpeg",
+    quality: 0.98,
+    extension: "jpg",
+    helper: "JPG 2160px. Lebih tajam dengan ukuran file lebih besar.",
+  },
+  lossless: {
+    label: "Lossless",
+    maxSize: null,
+    mime: "image/png",
+    quality: null,
+    extension: "png",
+    helper: "PNG lossless ukuran asli. File bisa sangat besar.",
+  },
+};
 
 const state = {
   cols: DEFAULT_COLS,
   rows: null,
+  quality: DEFAULT_QUALITY,
   image: null,
   imageUrl: "",
   fileName: "",
@@ -38,6 +67,8 @@ const els = {
   colsHelper: document.getElementById("colsHelper"),
   rowsHelper: document.getElementById("rowsHelper"),
   totalInfo: document.getElementById("totalInfo"),
+  qualityHelper: document.getElementById("qualityHelper"),
+  qualityOptions: document.querySelectorAll(".quality-option"),
   orderInfo: document.getElementById("orderInfo"),
   previewSection: document.getElementById("previewSection"),
   previewGrid: document.getElementById("previewGrid"),
@@ -91,12 +122,21 @@ function showAppSections() {
 
 function updateControls() {
   const total = state.cols * state.rows;
+  const preset = EXPORT_PRESETS[state.quality];
   els.colsValue.textContent = state.cols;
   els.rowsValue.textContent = state.rows;
   els.colsHelper.textContent = `${state.cols} kolom`;
   els.rowsHelper.textContent = `${state.rows} baris · ${total} foto`;
   els.totalInfo.textContent = `${state.cols} kolom × ${state.rows} baris = ${total} foto`;
-  els.downloadAll.textContent = `Download Semua (${total} foto)`;
+  els.qualityHelper.textContent = preset.helper;
+  els.downloadAll.textContent = `Download Semua (${total} foto · ${preset.label})`;
+
+  els.qualityOptions.forEach((button) => {
+    const isActive = button.dataset.quality === state.quality;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+    button.disabled = state.downloading;
+  });
 
   els.colsMinus.disabled = state.cols <= MIN_COLS || state.downloading;
   els.colsPlus.disabled = state.cols >= MAX_COLS || state.downloading;
@@ -107,6 +147,12 @@ function updateControls() {
 
 function autoRowsForImage(img, cols) {
   return clamp(Math.round((img.naturalHeight / img.naturalWidth) * cols), MIN_ROWS, MAX_ROWS);
+}
+
+function getExportTileSize(sourceTileSize) {
+  const preset = EXPORT_PRESETS[state.quality];
+  const maxSize = preset.maxSize || sourceTileSize;
+  return Math.max(1, Math.floor(Math.min(sourceTileSize, maxSize)));
 }
 
 function generateTiles(imgElement, cols, rows) {
@@ -128,16 +174,21 @@ function generateTiles(imgElement, cols, rows) {
     cropY = (imgH - cropH) / 2;
   }
 
-  const tileSize = Math.max(1, Math.floor(Math.min(cropW / cols, cropH / rows)));
+  const sourceTileSize = Math.max(1, Math.floor(Math.min(cropW / cols, cropH / rows)));
+  const outputTileSize = getExportTileSize(sourceTileSize);
   const tiles = [];
 
   for (let row = 0; row < rows; row += 1) {
     for (let col = 0; col < cols; col += 1) {
       const canvas = document.createElement("canvas");
-      canvas.width = tileSize;
-      canvas.height = tileSize;
+      canvas.width = outputTileSize;
+      canvas.height = outputTileSize;
 
-      const ctx = canvas.getContext("2d", { alpha: false });
+      const ctx = canvas.getContext("2d");
+      if (EXPORT_PRESETS[state.quality].mime === "image/jpeg") {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, outputTileSize, outputTileSize);
+      }
       ctx.drawImage(
         imgElement,
         cropX + col * (cropW / cols),
@@ -146,8 +197,8 @@ function generateTiles(imgElement, cols, rows) {
         cropH / rows,
         0,
         0,
-        tileSize,
-        tileSize
+        outputTileSize,
+        outputTileSize
       );
 
       tiles.push({
@@ -155,6 +206,7 @@ function generateTiles(imgElement, cols, rows) {
         row,
         col,
         uploadOrder: (rows - row) * cols - col,
+        outputSize: outputTileSize,
       });
     }
   }
@@ -162,7 +214,7 @@ function generateTiles(imgElement, cols, rows) {
   return tiles;
 }
 
-function canvasToBlob(canvas) {
+function canvasToBlob(canvas, mime = "image/png", quality = null) {
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (blob) {
@@ -170,12 +222,12 @@ function canvasToBlob(canvas) {
       } else {
         reject(new Error("Canvas gagal dibuat."));
       }
-    }, "image/png");
+    }, mime, quality);
   });
 }
 
 async function makePreviewUrl(canvas) {
-  const blob = await canvasToBlob(canvas);
+  const blob = await canvasToBlob(canvas, "image/png");
   const url = URL.createObjectURL(blob);
   state.previewUrls.push(url);
   return url;
@@ -309,7 +361,8 @@ function selectTile(uploadOrder) {
 }
 
 async function downloadCanvas(canvas, filename) {
-  const blob = await canvasToBlob(canvas);
+  const preset = EXPORT_PRESETS[state.quality];
+  const blob = await canvasToBlob(canvas, preset.mime, preset.quality);
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -321,7 +374,8 @@ async function downloadCanvas(canvas, filename) {
 }
 
 function filenameForTile(tile) {
-  return `ig_upload_${padOrder(tile.uploadOrder, state.tiles.length)}.png`;
+  const preset = EXPORT_PRESETS[state.quality];
+  return `ig_upload_${padOrder(tile.uploadOrder, state.tiles.length)}.${preset.extension}`;
 }
 
 async function downloadTile(tile) {
@@ -381,6 +435,7 @@ function resetState() {
 
   state.cols = DEFAULT_COLS;
   state.rows = null;
+  state.quality = DEFAULT_QUALITY;
   state.image = null;
   state.imageUrl = "";
   state.fileName = "";
@@ -464,6 +519,15 @@ function changeRows(delta) {
   rebuildTiles();
 }
 
+function changeQuality(quality) {
+  if (!EXPORT_PRESETS[quality] || state.downloading || state.quality === quality) {
+    return;
+  }
+
+  state.quality = quality;
+  rebuildTiles();
+}
+
 function handleDrop(event) {
   event.preventDefault();
   els.dropZone.classList.remove("dragging");
@@ -502,6 +566,9 @@ function bindEvents() {
   els.colsPlus.addEventListener("click", () => changeCols(1));
   els.rowsMinus.addEventListener("click", () => changeRows(-1));
   els.rowsPlus.addEventListener("click", () => changeRows(1));
+  els.qualityOptions.forEach((button) => {
+    button.addEventListener("click", () => changeQuality(button.dataset.quality));
+  });
   els.downloadAll.addEventListener("click", downloadAllTiles);
   els.resetButton.addEventListener("click", resetState);
 }

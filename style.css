@@ -388,6 +388,54 @@ h1 {
   font-weight: 700;
 }
 
+.quality-control {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.control-title {
+  margin: 0 0 4px;
+  color: var(--text);
+  font-size: 0.94rem;
+  font-weight: 800;
+}
+
+.quality-control p:last-child {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.quality-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+  border: 1px solid var(--border-mid);
+  border-radius: 14px;
+  background: var(--bg-input);
+  padding: 6px;
+}
+
+.quality-option {
+  min-width: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  padding: 9px 6px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.quality-option.active {
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  color: #171205;
+}
+
 .info-bar {
   display: flex;
   gap: 10px;
