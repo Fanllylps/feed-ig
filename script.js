@@ -37,6 +37,9 @@ const state = {
   cols: DEFAULT_COLS,
   rows: null,
   quality: DEFAULT_QUALITY,
+  cropOffsetX: 0,
+  cropOffsetY: 0,
+  cropZoom: 1,
   image: null,
   imageUrl: "",
   fileName: "",
@@ -69,6 +72,8 @@ const els = {
   totalInfo: document.getElementById("totalInfo"),
   qualityHelper: document.getElementById("qualityHelper"),
   qualityOptions: document.querySelectorAll(".quality-option"),
+  presetOptions: document.querySelectorAll(".preset-options button"),
+  cropActions: document.querySelectorAll("[data-crop-action]"),
   orderInfo: document.getElementById("orderInfo"),
   uploadGuideText: document.getElementById("uploadGuideText"),
   previewSection: document.getElementById("previewSection"),
@@ -163,6 +168,18 @@ function getExportTileSize(sourceTileSize) {
   return Math.max(1, Math.floor(Math.min(sourceTileSize, maxSize)));
 }
 
+function resetCropAdjustments() {
+  state.cropOffsetX = 0;
+  state.cropOffsetY = 0;
+  state.cropZoom = 1;
+}
+
+function clampCropAdjustments() {
+  state.cropZoom = clamp(state.cropZoom, 1, 1.8);
+  state.cropOffsetX = clamp(state.cropOffsetX, -0.5, 0.5);
+  state.cropOffsetY = clamp(state.cropOffsetY, -0.5, 0.5);
+}
+
 function generateTiles(imgElement, cols, rows) {
   const imgW = imgElement.naturalWidth;
   const imgH = imgElement.naturalHeight;
@@ -176,11 +193,16 @@ function generateTiles(imgElement, cols, rows) {
 
   if (imgRatio > targetRatio) {
     cropW = imgH * targetRatio;
-    cropX = (imgW - cropW) / 2;
   } else {
     cropH = imgW / targetRatio;
-    cropY = (imgH - cropH) / 2;
   }
+
+  cropW /= state.cropZoom;
+  cropH /= state.cropZoom;
+  cropX = (imgW - cropW) / 2 + state.cropOffsetX * (imgW - cropW);
+  cropY = (imgH - cropH) / 2 + state.cropOffsetY * (imgH - cropH);
+  cropX = clamp(cropX, 0, imgW - cropW);
+  cropY = clamp(cropY, 0, imgH - cropH);
 
   const sourceTileSize = Math.max(1, Math.floor(Math.min(cropW / cols, cropH / rows)));
   const outputTileSize = getExportTileSize(sourceTileSize);
@@ -460,6 +482,7 @@ function resetState() {
   state.cols = DEFAULT_COLS;
   state.rows = null;
   state.quality = DEFAULT_QUALITY;
+  resetCropAdjustments();
   state.image = null;
   state.imageUrl = "";
   state.fileName = "";
@@ -508,6 +531,7 @@ async function loadImageFile(file) {
     state.fileName = file.name;
     state.cols = DEFAULT_COLS;
     state.rows = autoRowsForImage(img, state.cols);
+    resetCropAdjustments();
 
     els.fileName.textContent = state.fileName;
     els.imageResolution.textContent = `Resolusi: ${img.naturalWidth} × ${img.naturalHeight} px`;
@@ -540,6 +564,45 @@ function changeRows(delta) {
   }
 
   state.rows = clamp(state.rows + delta, MIN_ROWS, MAX_ROWS);
+  rebuildTiles();
+}
+
+function applyGridPreset(cols, rows) {
+  if (!state.image || state.downloading) {
+    return;
+  }
+
+  state.cols = clamp(cols, MIN_COLS, MAX_COLS);
+  state.rows = clamp(rows, MIN_ROWS, MAX_ROWS);
+  resetCropAdjustments();
+  rebuildTiles();
+}
+
+function adjustCrop(action) {
+  if (!state.image || state.downloading) {
+    return;
+  }
+
+  const moveStep = 0.08;
+  const zoomStep = 0.08;
+
+  if (action === "up") {
+    state.cropOffsetY -= moveStep;
+  } else if (action === "down") {
+    state.cropOffsetY += moveStep;
+  } else if (action === "left") {
+    state.cropOffsetX -= moveStep;
+  } else if (action === "right") {
+    state.cropOffsetX += moveStep;
+  } else if (action === "zoomIn") {
+    state.cropZoom += zoomStep;
+  } else if (action === "zoomOut") {
+    state.cropZoom -= zoomStep;
+  } else if (action === "reset") {
+    resetCropAdjustments();
+  }
+
+  clampCropAdjustments();
   rebuildTiles();
 }
 
@@ -590,6 +653,14 @@ function bindEvents() {
   els.colsPlus.addEventListener("click", () => changeCols(1));
   els.rowsMinus.addEventListener("click", () => changeRows(-1));
   els.rowsPlus.addEventListener("click", () => changeRows(1));
+  els.presetOptions.forEach((button) => {
+    button.addEventListener("click", () => {
+      applyGridPreset(Number(button.dataset.cols), Number(button.dataset.rows));
+    });
+  });
+  els.cropActions.forEach((button) => {
+    button.addEventListener("click", () => adjustCrop(button.dataset.cropAction));
+  });
   els.qualityOptions.forEach((button) => {
     button.addEventListener("click", () => changeQuality(button.dataset.quality));
   });

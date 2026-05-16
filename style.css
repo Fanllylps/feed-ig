@@ -388,6 +388,8 @@ h1 {
   font-weight: 700;
 }
 
+.preset-control,
+.crop-control,
 .quality-control {
   margin-top: 16px;
   padding-top: 16px;
@@ -406,6 +408,73 @@ h1 {
   color: var(--text-muted);
   font-size: 0.82rem;
   line-height: 1.45;
+}
+
+.preset-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.preset-options button,
+.crop-pad button,
+.zoom-actions button {
+  border: 1px solid var(--border-mid);
+  border-radius: 10px;
+  background: var(--bg-input);
+  color: var(--text);
+  font-weight: 800;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.preset-options button {
+  padding: 9px 6px;
+  font-size: 0.84rem;
+}
+
+.crop-control p:last-child {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.crop-pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.crop-pad button {
+  min-height: 36px;
+  padding: 8px;
+}
+
+.crop-pad button[data-crop-action="reset"] {
+  color: var(--gold-light);
+  font-size: 0.78rem;
+}
+
+.zoom-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.zoom-actions button {
+  padding: 9px 10px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.preset-options button:hover,
+.crop-pad button:hover,
+.zoom-actions button:hover {
+  border-color: rgba(245, 208, 122, 0.45);
+  background: #242017;
 }
 
 .quality-options {
