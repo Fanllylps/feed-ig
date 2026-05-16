@@ -571,11 +571,11 @@ h1 {
 
 .preview-grid {
   display: grid;
-  gap: 2px;
+  gap: 0;
   overflow: hidden;
-  border: 1px solid #050505;
+  border: 1px solid var(--border-mid);
   border-radius: 14px;
-  background: #050505;
+  background: #080806;
 }
 
 .first-upload-preview {
@@ -613,14 +613,15 @@ h1 {
 
 .feed-preview {
   display: grid;
-  gap: 2px;
+  gap: 0;
   overflow: hidden;
-  border: 1px solid #050505;
+  border: 1px solid var(--border-mid);
   border-radius: 14px;
-  background: #050505;
+  background: #080806;
 }
 
 .feed-tile {
+  position: relative;
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: #080806;
@@ -640,6 +641,22 @@ h1 {
   outline: 0 solid transparent;
   outline-offset: -3px;
   transition: transform 0.15s ease, outline-color 0.15s ease, outline-width 0.15s ease;
+}
+
+.tile::after,
+.feed-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tile::after {
+  border: 1px solid rgba(245, 208, 122, 0.12);
+}
+
+.feed-tile::after {
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .tile:hover,
@@ -664,15 +681,15 @@ h1 {
   bottom: 7px;
   left: 7px;
   display: grid;
-  min-width: 30px;
-  height: 30px;
+  min-width: 26px;
+  height: 26px;
   place-items: center;
   border: 1px solid rgba(212, 168, 67, 0.45);
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.74);
   color: var(--gold-light);
   font-family: "DM Serif Display", Georgia, serif;
-  font-size: 1.02rem;
+  font-size: 0.94rem;
   line-height: 1;
   backdrop-filter: blur(6px);
 }
