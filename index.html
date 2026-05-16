@@ -19,11 +19,18 @@
   <body>
     <main class="app-shell">
       <header class="app-header">
-        <p class="eyebrow">Alat feed Instagram</p>
-        <h1>IG Grid Splitter</h1>
-        <p class="subtitle">
-          Potong gambar besar menjadi grid feed Instagram yang nyambung.
-        </p>
+        <div>
+          <p class="eyebrow">Alat feed Instagram</p>
+          <h1>IG Grid Splitter</h1>
+          <p class="subtitle">
+            Potong gambar besar menjadi grid feed Instagram yang nyambung.
+          </p>
+        </div>
+        <div class="header-pills" aria-label="Ringkasan fitur">
+          <span>3 kolom IG</span>
+          <span>PNG kotak</span>
+          <span>Tanpa login</span>
+        </div>
       </header>
 
       <section class="guide-section" aria-labelledby="guide-title">
@@ -76,72 +83,84 @@
         <p class="error-message" id="errorMessage" role="alert"></p>
       </section>
 
-      <section class="image-card hidden" id="imageInfo" aria-live="polite">
-        <div>
-          <p class="section-label">Gambar aktif</p>
-          <h2 id="fileName">-</h2>
+      <div class="workspace hidden" id="workspace">
+        <aside class="side-panel" aria-label="Panel pengaturan">
+          <section class="image-card hidden" id="imageInfo" aria-live="polite">
+            <div>
+              <p class="section-label">Gambar aktif</p>
+              <h2 id="fileName">-</h2>
+            </div>
+            <p id="imageResolution">Resolusi: -</p>
+          </section>
+
+          <section class="controls-card hidden" id="controlsSection" aria-label="Pengaturan grid">
+            <div class="stepper-row">
+              <div>
+                <label for="colsValue">Kolom</label>
+                <p id="colsHelper">3 kolom</p>
+              </div>
+              <div class="stepper" role="group" aria-label="Atur kolom">
+                <button id="colsMinus" type="button" aria-label="Kurangi kolom">−</button>
+                <output id="colsValue" for="colsMinus colsPlus">3</output>
+                <button id="colsPlus" type="button" aria-label="Tambah kolom">+</button>
+              </div>
+            </div>
+
+            <div class="stepper-row">
+              <div>
+                <label for="rowsValue">Baris</label>
+                <p id="rowsHelper">3 baris · 9 foto</p>
+              </div>
+              <div class="stepper" role="group" aria-label="Atur baris">
+                <button id="rowsMinus" type="button" aria-label="Kurangi baris">−</button>
+                <output id="rowsValue" for="rowsMinus rowsPlus">3</output>
+                <button id="rowsPlus" type="button" aria-label="Tambah baris">+</button>
+              </div>
+            </div>
+
+            <p class="total-info" id="totalInfo">3 kolom × 3 baris = 9 foto</p>
+          </section>
+
+          <section class="info-bar hidden" id="orderInfo">
+            <span aria-hidden="true">ℹ️</span>
+            <p>Urutan upload dimulai dari kanan bawah agar feed Instagram nyambung.</p>
+          </section>
+
+          <section class="progress-section hidden" id="progressSection" aria-live="polite">
+            <p id="progressText">Mendownload 0 dari 0...</p>
+            <div class="progress-track" aria-hidden="true">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </section>
+
+          <section class="actions hidden" id="actionsSection" aria-label="Aksi gambar">
+            <button class="primary-button" id="downloadAll" type="button">
+              Download Semua
+            </button>
+            <button class="secondary-button" id="resetButton" type="button">
+              Ganti Gambar
+            </button>
+          </section>
+        </aside>
+
+        <div class="content-panel">
+          <section class="preview-section hidden" id="previewSection" aria-labelledby="previewTitle">
+            <div class="section-heading">
+              <h2 id="previewTitle">Pratinjau Grid</h2>
+              <p>Lihat urutan angka sebelum upload ke Instagram.</p>
+            </div>
+            <div class="preview-grid" id="previewGrid"></div>
+          </section>
+
+          <section class="order-section hidden" id="orderSection" aria-labelledby="orderTitle">
+            <div class="section-heading">
+              <h2 id="orderTitle">Urutan Upload</h2>
+              <p>Mulai dari nomor paling kecil.</p>
+            </div>
+            <div class="order-list" id="orderList"></div>
+          </section>
         </div>
-        <p id="imageResolution">Resolusi: -</p>
-      </section>
-
-      <section class="controls-card hidden" id="controlsSection" aria-label="Pengaturan grid">
-        <div class="stepper-row">
-          <div>
-            <label for="colsValue">Kolom</label>
-            <p id="colsHelper">3 kolom</p>
-          </div>
-          <div class="stepper" role="group" aria-label="Atur kolom">
-            <button id="colsMinus" type="button" aria-label="Kurangi kolom">−</button>
-            <output id="colsValue" for="colsMinus colsPlus">3</output>
-            <button id="colsPlus" type="button" aria-label="Tambah kolom">+</button>
-          </div>
-        </div>
-
-        <div class="stepper-row">
-          <div>
-            <label for="rowsValue">Baris</label>
-            <p id="rowsHelper">3 baris · 9 foto</p>
-          </div>
-          <div class="stepper" role="group" aria-label="Atur baris">
-            <button id="rowsMinus" type="button" aria-label="Kurangi baris">−</button>
-            <output id="rowsValue" for="rowsMinus rowsPlus">3</output>
-            <button id="rowsPlus" type="button" aria-label="Tambah baris">+</button>
-          </div>
-        </div>
-
-        <p class="total-info" id="totalInfo">3 kolom × 3 baris = 9 foto</p>
-      </section>
-
-      <section class="info-bar hidden" id="orderInfo">
-        <span aria-hidden="true">ℹ️</span>
-        <p>Urutan upload dimulai dari kanan bawah agar feed Instagram nyambung.</p>
-      </section>
-
-      <section class="preview-section hidden" id="previewSection" aria-labelledby="previewTitle">
-        <h2 id="previewTitle">Pratinjau Grid</h2>
-        <div class="preview-grid" id="previewGrid"></div>
-      </section>
-
-      <section class="order-section hidden" id="orderSection" aria-labelledby="orderTitle">
-        <h2 id="orderTitle">Urutan Upload</h2>
-        <div class="order-list" id="orderList"></div>
-      </section>
-
-      <section class="progress-section hidden" id="progressSection" aria-live="polite">
-        <p id="progressText">Mendownload 0 dari 0...</p>
-        <div class="progress-track" aria-hidden="true">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-      </section>
-
-      <section class="actions hidden" id="actionsSection" aria-label="Aksi gambar">
-        <button class="primary-button" id="downloadAll" type="button">
-          Download Semua
-        </button>
-        <button class="secondary-button" id="resetButton" type="button">
-          Ganti Gambar
-        </button>
-      </section>
+      </div>
     </main>
 
     <script src="script.js"></script>

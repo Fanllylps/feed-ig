@@ -20,6 +20,7 @@ const els = {
   guideToggle: document.getElementById("guideToggle"),
   guidePanel: document.getElementById("guidePanel"),
   uploadSection: document.getElementById("uploadSection"),
+  workspace: document.getElementById("workspace"),
   fileInput: document.getElementById("fileInput"),
   dropZone: document.getElementById("dropZone"),
   errorMessage: document.getElementById("errorMessage"),
@@ -78,6 +79,7 @@ function revokePreviewUrls() {
 
 function showAppSections() {
   setVisible(els.uploadSection, false);
+  setVisible(els.workspace, true);
   setVisible(els.imageInfo, true);
   setVisible(els.controlsSection, true);
   setVisible(els.orderInfo, true);
@@ -354,6 +356,7 @@ function resetState() {
   setError("");
 
   setVisible(els.uploadSection, true);
+  setVisible(els.workspace, false);
   setVisible(els.imageInfo, false);
   setVisible(els.controlsSection, false);
   setVisible(els.orderInfo, false);
