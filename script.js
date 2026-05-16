@@ -80,6 +80,7 @@ const els = {
   progressFill: document.getElementById("progressFill"),
   actionsSection: document.getElementById("actionsSection"),
   downloadAll: document.getElementById("downloadAll"),
+  downloadFirst: document.getElementById("downloadFirst"),
   downloadNote: document.getElementById("downloadNote"),
   resetButton: document.getElementById("resetButton"),
 };
@@ -133,9 +134,9 @@ function updateControls() {
   els.rowsHelper.textContent = `${state.rows} baris · ${total} foto`;
   els.totalInfo.textContent = `${state.cols} kolom × ${state.rows} baris = ${total} foto`;
   els.qualityHelper.textContent = preset.helper;
-  els.uploadGuideText.textContent = `Download semua, lalu upload ke Instagram satu per satu mulai dari ${firstFile}. File terakhir adalah ${lastFile}.`;
-  els.downloadAll.textContent = `Download ${total} File (${preset.label})`;
-  els.downloadNote.textContent = `Urutan upload: ${firstFile} dulu, lanjut nomor berikutnya sampai ${lastFile}.`;
+  els.uploadGuideText.textContent = `Setelah download selesai, buka Instagram dan upload dari file paling atas di galeri: ${firstFile}. Lanjutkan ke nomor berikutnya sampai ${lastFile}.`;
+  els.downloadAll.textContent = `Download ${total} File untuk IG (${preset.label})`;
+  els.downloadNote.textContent = `App akan menyimpan file dengan urutan khusus agar ${firstFile} muncul paling atas di galeri Instagram.`;
 
   els.qualityOptions.forEach((button) => {
     const isActive = button.dataset.quality === state.quality;
@@ -149,6 +150,7 @@ function updateControls() {
   els.rowsMinus.disabled = state.rows <= MIN_ROWS || state.downloading;
   els.rowsPlus.disabled = state.rows >= MAX_ROWS || state.downloading;
   els.downloadAll.disabled = state.downloading || state.tiles.length === 0;
+  els.downloadFirst.disabled = state.downloading || state.tiles.length === 0;
 }
 
 function autoRowsForImage(img, cols) {
@@ -294,7 +296,7 @@ async function renderPreview() {
 async function renderOrderList() {
   els.orderList.innerHTML = "";
   const total = state.tiles.length;
-  const sorted = [...state.tiles].sort((a, b) => a.uploadOrder - b.uploadOrder);
+  const sorted = [...state.tiles].sort((a, b) => b.uploadOrder - a.uploadOrder);
   const fragment = document.createDocumentFragment();
 
   sorted.forEach((tile, index) => {
@@ -397,11 +399,22 @@ async function downloadTile(tile) {
   await downloadCanvas(tile.canvas, filenameForTile(tile));
 }
 
-function setProgress(done, total, complete = false) {
+async function downloadFirstTile() {
+  if (state.downloading || state.tiles.length === 0) {
+    return;
+  }
+
+  const firstTile = state.tiles.find((tile) => tile.uploadOrder === 1);
+  if (firstTile) {
+    await downloadCanvas(firstTile.canvas, filenameForTile(firstTile));
+  }
+}
+
+function setProgress(done, total, complete = false, filename = "") {
   const percent = total > 0 ? Math.round((done / total) * 100) : 0;
   els.progressText.textContent = complete
-    ? "Download selesai."
-    : `Mendownload ${done} dari ${total}...`;
+    ? "Download selesai. Buka Instagram, pilih file paling atas, lalu lanjut ke bawah."
+    : `Menyimpan ${done} dari ${total}${filename ? `: ${filename}` : ""}...`;
   els.progressFill.style.width = `${percent}%`;
 }
 
@@ -421,7 +434,7 @@ async function downloadAllTiles() {
     for (let index = 0; index < sorted.length; index += 1) {
       const tile = sorted[index];
       await downloadCanvas(tile.canvas, filenameForTile(tile));
-      setProgress(index + 1, sorted.length);
+      setProgress(index + 1, sorted.length, false, filenameForTile(tile));
 
       if (index < sorted.length - 1) {
         await delay(DOWNLOAD_DELAY);
@@ -581,6 +594,7 @@ function bindEvents() {
     button.addEventListener("click", () => changeQuality(button.dataset.quality));
   });
   els.downloadAll.addEventListener("click", downloadAllTiles);
+  els.downloadFirst.addEventListener("click", downloadFirstTile);
   els.resetButton.addEventListener("click", resetState);
 }
 
