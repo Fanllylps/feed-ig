@@ -8,28 +8,28 @@ const DEFAULT_QUALITY = "lossless";
 
 const EXPORT_PRESETS = {
   instagram: {
-    label: "IG 1080",
+    label: "Standar",
     maxSize: 1080,
     mime: "image/jpeg",
     quality: 0.95,
     extension: "jpg",
-    helper: "JPG 1080px. Ringan dan sesuai ukuran feed Instagram.",
+    helper: "Hasil ringan untuk upload cepat. Cocok untuk konten sederhana.",
   },
   high: {
-    label: "HD 2160",
+    label: "Tajam",
     maxSize: 2160,
     mime: "image/jpeg",
     quality: 0.98,
     extension: "jpg",
-    helper: "JPG 2160px. Lebih tajam dengan ukuran file lebih besar.",
+    helper: "Pilihan rekomendasi. Lebih tajam, ukuran file tetap masuk akal.",
   },
   lossless: {
-    label: "Lossless",
+    label: "Maksimal",
     maxSize: null,
     mime: "image/png",
     quality: null,
     extension: "png",
-    helper: "PNG lossless ukuran asli. File bisa sangat besar.",
+    helper: "Kualitas paling bersih. File bisa sangat besar.",
   },
 };
 
@@ -47,6 +47,7 @@ const state = {
   previewUrls: [],
   downloading: false,
   selectedOrder: null,
+  uploadedOrders: new Set(),
 };
 
 const els = {
@@ -76,8 +77,12 @@ const els = {
   cropActions: document.querySelectorAll("[data-crop-action]"),
   orderInfo: document.getElementById("orderInfo"),
   uploadGuideText: document.getElementById("uploadGuideText"),
+  firstUploadSection: document.getElementById("firstUploadSection"),
+  firstUploadPreview: document.getElementById("firstUploadPreview"),
   previewSection: document.getElementById("previewSection"),
   previewGrid: document.getElementById("previewGrid"),
+  feedSection: document.getElementById("feedSection"),
+  feedPreview: document.getElementById("feedPreview"),
   orderSection: document.getElementById("orderSection"),
   orderList: document.getElementById("orderList"),
   progressSection: document.getElementById("progressSection"),
@@ -123,7 +128,9 @@ function showAppSections() {
   setVisible(els.imageInfo, true);
   setVisible(els.controlsSection, true);
   setVisible(els.orderInfo, true);
+  setVisible(els.firstUploadSection, true);
   setVisible(els.previewSection, true);
+  setVisible(els.feedSection, true);
   setVisible(els.orderSection, true);
   setVisible(els.actionsSection, true);
 }
@@ -271,7 +278,10 @@ async function rebuildTiles() {
   revokePreviewUrls();
   state.tiles = generateTiles(state.image, state.cols, state.rows);
   state.selectedOrder = 1;
+  state.uploadedOrders = new Set();
   await renderPreview();
+  renderFirstUploadPreview();
+  renderFeedPreview();
   await renderOrderList();
   updateControls();
 }
@@ -315,6 +325,49 @@ async function renderPreview() {
   els.previewGrid.appendChild(fragment);
 }
 
+function renderFirstUploadPreview() {
+  els.firstUploadPreview.innerHTML = "";
+  const firstTile = state.tiles.find((tile) => tile.uploadOrder === 1);
+  if (!firstTile) {
+    return;
+  }
+
+  const img = document.createElement("img");
+  img.src = firstTile.previewUrl;
+  img.alt = "Preview file pertama yang harus diupload";
+
+  const text = document.createElement("div");
+  const title = document.createElement("p");
+  title.textContent = filenameForTile(firstTile);
+
+  const note = document.createElement("span");
+  note.textContent = `Upload pertama. Posisi feed: Baris ${firstTile.row + 1}, Kolom ${firstTile.col + 1}.`;
+
+  text.append(title, note);
+  els.firstUploadPreview.append(img, text);
+}
+
+function renderFeedPreview() {
+  els.feedPreview.innerHTML = "";
+  els.feedPreview.style.gridTemplateColumns = `repeat(${state.cols}, 1fr)`;
+
+  const fragment = document.createDocumentFragment();
+
+  state.tiles.forEach((tile) => {
+    const item = document.createElement("div");
+    item.className = "feed-tile";
+
+    const img = document.createElement("img");
+    img.src = tile.previewUrl;
+    img.alt = `Simulasi feed baris ${tile.row + 1}, kolom ${tile.col + 1}`;
+
+    item.appendChild(img);
+    fragment.appendChild(item);
+  });
+
+  els.feedPreview.appendChild(fragment);
+}
+
 async function renderOrderList() {
   els.orderList.innerHTML = "";
   const total = state.tiles.length;
@@ -327,6 +380,9 @@ async function renderOrderList() {
     item.type = "button";
     item.dataset.order = String(tile.uploadOrder);
     item.setAttribute("aria-label", `Lihat preview upload ke-${tile.uploadOrder}`);
+    if (state.uploadedOrders.has(tile.uploadOrder)) {
+      item.classList.add("done");
+    }
     if (tile.uploadOrder === state.selectedOrder) {
       item.classList.add("selected");
       item.setAttribute("aria-current", "true");
@@ -370,11 +426,29 @@ async function renderOrderList() {
     action.className = "order-action";
     action.textContent = "Lihat tile";
 
-    item.append(badge, thumb, text, action);
+    const check = document.createElement("span");
+    check.className = "order-check";
+    check.textContent = state.uploadedOrders.has(tile.uploadOrder) ? "Sudah" : "Belum";
+    check.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleUploaded(tile.uploadOrder);
+    });
+
+    item.append(badge, thumb, text, action, check);
     fragment.appendChild(item);
   });
 
   els.orderList.appendChild(fragment);
+}
+
+function toggleUploaded(uploadOrder) {
+  if (state.uploadedOrders.has(uploadOrder)) {
+    state.uploadedOrders.delete(uploadOrder);
+  } else {
+    state.uploadedOrders.add(uploadOrder);
+  }
+
+  renderOrderList();
 }
 
 function selectTile(uploadOrder) {
@@ -489,11 +563,14 @@ function resetState() {
   state.tiles = [];
   state.downloading = false;
   state.selectedOrder = null;
+  state.uploadedOrders = new Set();
 
   els.fileInput.value = "";
   els.fileName.textContent = "-";
   els.imageResolution.textContent = "Resolusi: -";
   els.previewGrid.innerHTML = "";
+  els.feedPreview.innerHTML = "";
+  els.firstUploadPreview.innerHTML = "";
   els.orderList.innerHTML = "";
   els.progressFill.style.width = "0%";
   els.progressText.textContent = "Mendownload 0 dari 0...";
@@ -504,7 +581,9 @@ function resetState() {
   setVisible(els.imageInfo, false);
   setVisible(els.controlsSection, false);
   setVisible(els.orderInfo, false);
+  setVisible(els.firstUploadSection, false);
   setVisible(els.previewSection, false);
+  setVisible(els.feedSection, false);
   setVisible(els.orderSection, false);
   setVisible(els.progressSection, false);
   setVisible(els.actionsSection, false);

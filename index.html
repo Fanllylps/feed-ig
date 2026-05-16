@@ -165,11 +165,11 @@
                   <small>File ringan</small>
                 </button>
                 <button type="button" class="quality-option" data-quality="high">
-                  <span>HD 2160</span>
+                  <span>Tajam</span>
                   <small>Rekomendasi</small>
                 </button>
                 <button type="button" class="quality-option active" data-quality="lossless">
-                  <span>Lossless</span>
+                  <span>Maksimal</span>
                   <small>Paling bersih</small>
                 </button>
               </div>
@@ -207,6 +207,14 @@
         </aside>
 
         <div class="content-panel">
+          <section class="first-upload-card hidden" id="firstUploadSection" aria-labelledby="firstUploadTitle">
+            <div class="section-heading">
+              <h2 id="firstUploadTitle">Upload Pertama</h2>
+              <p>Pilih file ini dulu saat masuk ke galeri Instagram.</p>
+            </div>
+            <div class="first-upload-preview" id="firstUploadPreview"></div>
+          </section>
+
           <section class="preview-section hidden" id="previewSection" aria-labelledby="previewTitle">
             <div class="section-heading">
               <h2 id="previewTitle">Pratinjau Grid</h2>
@@ -215,10 +223,18 @@
             <div class="preview-grid" id="previewGrid"></div>
           </section>
 
+          <section class="feed-section hidden" id="feedSection" aria-labelledby="feedTitle">
+            <div class="section-heading">
+              <h2 id="feedTitle">Simulasi Feed IG</h2>
+              <p>Tampilan setelah semua file selesai diupload.</p>
+            </div>
+            <div class="feed-preview" id="feedPreview"></div>
+          </section>
+
           <section class="order-section hidden" id="orderSection" aria-labelledby="orderTitle">
             <div class="section-heading">
-              <h2 id="orderTitle">Urutan Upload</h2>
-              <p>Mulai dari nomor paling kecil.</p>
+              <h2 id="orderTitle">Checklist Upload</h2>
+              <p>Centang sambil upload agar tidak loncat urutan.</p>
             </div>
             <div class="order-list" id="orderList"></div>
           </section>
