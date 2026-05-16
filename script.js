@@ -14,6 +14,7 @@ const state = {
   tiles: [],
   previewUrls: [],
   downloading: false,
+  selectedOrder: null,
 };
 
 const els = {
@@ -187,6 +188,7 @@ async function rebuildTiles() {
 
   revokePreviewUrls();
   state.tiles = generateTiles(state.image, state.cols, state.rows);
+  state.selectedOrder = 1;
   await renderPreview();
   await renderOrderList();
   updateControls();
@@ -204,6 +206,10 @@ async function renderPreview() {
 
     const tileEl = document.createElement("article");
     tileEl.className = "tile";
+    tileEl.dataset.order = String(tile.uploadOrder);
+    if (tile.uploadOrder === state.selectedOrder) {
+      tileEl.classList.add("selected");
+    }
 
     const img = document.createElement("img");
     img.src = previewUrl;
@@ -234,8 +240,16 @@ async function renderOrderList() {
   const fragment = document.createDocumentFragment();
 
   sorted.forEach((tile, index) => {
-    const item = document.createElement("article");
+    const item = document.createElement("button");
     item.className = "order-item";
+    item.type = "button";
+    item.dataset.order = String(tile.uploadOrder);
+    item.setAttribute("aria-label", `Lihat preview upload ke-${tile.uploadOrder}`);
+    if (tile.uploadOrder === state.selectedOrder) {
+      item.classList.add("selected");
+      item.setAttribute("aria-current", "true");
+    }
+    item.addEventListener("click", () => selectTile(tile.uploadOrder));
 
     const badge = document.createElement("span");
     badge.className = "order-badge";
@@ -250,8 +264,13 @@ async function renderOrderList() {
     text.className = "order-text";
 
     const line = document.createElement("p");
-    line.textContent = `Upload ke-${tile.uploadOrder} · Baris ${tile.row + 1}, Kolom ${tile.col + 1}`;
+    line.textContent = `Upload ke-${tile.uploadOrder}`;
     text.appendChild(line);
+
+    const meta = document.createElement("span");
+    meta.className = "order-meta";
+    meta.textContent = `Baris ${tile.row + 1}, Kolom ${tile.col + 1}`;
+    text.appendChild(meta);
 
     if (index === 0 || index === total - 1) {
       const label = document.createElement("span");
@@ -260,11 +279,33 @@ async function renderOrderList() {
       text.appendChild(label);
     }
 
-    item.append(badge, thumb, text);
+    const action = document.createElement("span");
+    action.className = "order-action";
+    action.textContent = "Preview";
+
+    item.append(badge, thumb, text, action);
     fragment.appendChild(item);
   });
 
   els.orderList.appendChild(fragment);
+}
+
+function selectTile(uploadOrder) {
+  state.selectedOrder = uploadOrder;
+
+  els.previewGrid.querySelectorAll(".tile").forEach((tileEl) => {
+    tileEl.classList.toggle("selected", Number(tileEl.dataset.order) === uploadOrder);
+  });
+
+  els.orderList.querySelectorAll(".order-item").forEach((item) => {
+    const isSelected = Number(item.dataset.order) === uploadOrder;
+    item.classList.toggle("selected", isSelected);
+    if (isSelected) {
+      item.setAttribute("aria-current", "true");
+    } else {
+      item.removeAttribute("aria-current");
+    }
+  });
 }
 
 async function downloadCanvas(canvas, filename) {
@@ -345,6 +386,7 @@ function resetState() {
   state.fileName = "";
   state.tiles = [];
   state.downloading = false;
+  state.selectedOrder = null;
 
   els.fileInput.value = "";
   els.fileName.textContent = "-";

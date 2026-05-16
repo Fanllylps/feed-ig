@@ -446,13 +446,20 @@ h1 {
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: #080806;
-  transition: transform 0.15s ease;
+  outline: 0 solid transparent;
+  outline-offset: -3px;
+  transition: transform 0.15s ease, outline-color 0.15s ease, outline-width 0.15s ease;
 }
 
 .tile:hover,
 .tile:focus-within {
   z-index: 1;
   transform: scale(1.02);
+}
+
+.tile.selected {
+  z-index: 2;
+  outline: 3px solid var(--gold-light);
 }
 
 .tile img {
@@ -503,13 +510,27 @@ h1 {
 
 .order-item {
   display: grid;
-  grid-template-columns: 38px 40px minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: 38px 64px minmax(0, 1fr);
+  gap: 12px;
   align-items: center;
   border: 1px solid var(--border);
   border-radius: 13px;
   background: rgba(29, 26, 21, 0.74);
   padding: 10px;
+  color: inherit;
+  text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.order-item:hover,
+.order-item:focus-visible,
+.order-item.selected {
+  border-color: rgba(245, 208, 122, 0.58);
+  background: rgba(47, 39, 23, 0.8);
+}
+
+.order-item:active {
+  transform: scale(0.99);
 }
 
 .order-badge {
@@ -525,8 +546,8 @@ h1 {
 }
 
 .order-thumb {
-  width: 40px;
-  height: 40px;
+  width: 64px;
+  height: 64px;
   border-radius: 7px;
   object-fit: cover;
   background: #080806;
@@ -537,9 +558,17 @@ h1 {
 }
 
 .order-text p {
-  margin: 0;
+  margin: 0 0 4px;
   color: var(--text);
   font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.order-meta {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.8rem;
   line-height: 1.35;
 }
 
@@ -548,6 +577,17 @@ h1 {
   margin-top: 4px;
   color: var(--gold);
   font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.order-action {
+  display: none;
+  justify-self: end;
+  border: 1px solid var(--border-mid);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: var(--gold-light);
+  font-size: 0.76rem;
   font-weight: 800;
 }
 
@@ -671,6 +711,19 @@ button:active:not(:disabled) {
 
   .section-heading p {
     display: block;
+  }
+
+  .order-item {
+    grid-template-columns: 38px 72px minmax(0, 1fr) auto;
+  }
+
+  .order-thumb {
+    width: 72px;
+    height: 72px;
+  }
+
+  .order-action {
+    display: inline-block;
   }
 }
 
