@@ -410,29 +410,43 @@ h1 {
 
 .quality-options {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: 8px;
   margin-top: 12px;
-  border: 1px solid var(--border-mid);
-  border-radius: 14px;
-  background: var(--bg-input);
-  padding: 6px;
 }
 
 .quality-option {
+  display: grid;
+  gap: 3px;
   min-width: 0;
-  border: 0;
-  border-radius: 10px;
-  background: transparent;
-  padding: 9px 6px;
+  border: 1px solid var(--border-mid);
+  border-radius: 12px;
+  background: var(--bg-input);
+  padding: 10px 12px;
   color: var(--text-muted);
-  font-size: 0.78rem;
-  font-weight: 800;
+  text-align: left;
   transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
+.quality-option span {
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.quality-option small {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
 .quality-option.active {
+  border-color: rgba(245, 208, 122, 0.62);
   background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  color: #171205;
+}
+
+.quality-option.active span,
+.quality-option.active small {
   color: #171205;
 }
 
@@ -663,8 +677,15 @@ h1 {
 
 .actions {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 4px;
+}
+
+.action-note {
+  margin: -2px 2px 4px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .primary-button,
@@ -759,6 +780,10 @@ button:active:not(:disabled) {
 
   .section-heading p {
     display: block;
+  }
+
+  .quality-options {
+    grid-template-columns: 1fr;
   }
 
   .order-item {

@@ -129,13 +129,16 @@
               </div>
               <div class="quality-options" role="group" aria-label="Pilih kualitas hasil">
                 <button type="button" class="quality-option" data-quality="instagram">
-                  IG 1080
+                  <span>IG 1080</span>
+                  <small>File ringan</small>
                 </button>
                 <button type="button" class="quality-option" data-quality="high">
-                  HD 2160
+                  <span>HD 2160</span>
+                  <small>Rekomendasi</small>
                 </button>
                 <button type="button" class="quality-option active" data-quality="lossless">
-                  Lossless
+                  <span>Lossless</span>
+                  <small>Paling bersih</small>
                 </button>
               </div>
             </div>
@@ -143,7 +146,9 @@
 
           <section class="info-bar hidden" id="orderInfo">
             <span aria-hidden="true">i</span>
-            <p>Urutan upload dimulai dari kanan bawah agar feed Instagram nyambung.</p>
+            <p id="uploadGuideText">
+              Download semua file, lalu upload ke Instagram mulai dari file nomor 01.
+            </p>
           </section>
 
           <section class="progress-section hidden" id="progressSection" aria-live="polite">
@@ -157,6 +162,9 @@
             <button class="primary-button" id="downloadAll" type="button">
               Download Semua
             </button>
+            <p class="action-note" id="downloadNote">
+              Setelah download selesai, upload file ke Instagram dari nomor 01 sampai terakhir.
+            </p>
             <button class="secondary-button" id="resetButton" type="button">
               Ganti Gambar
             </button>

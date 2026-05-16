@@ -70,6 +70,7 @@ const els = {
   qualityHelper: document.getElementById("qualityHelper"),
   qualityOptions: document.querySelectorAll(".quality-option"),
   orderInfo: document.getElementById("orderInfo"),
+  uploadGuideText: document.getElementById("uploadGuideText"),
   previewSection: document.getElementById("previewSection"),
   previewGrid: document.getElementById("previewGrid"),
   orderSection: document.getElementById("orderSection"),
@@ -79,6 +80,7 @@ const els = {
   progressFill: document.getElementById("progressFill"),
   actionsSection: document.getElementById("actionsSection"),
   downloadAll: document.getElementById("downloadAll"),
+  downloadNote: document.getElementById("downloadNote"),
   resetButton: document.getElementById("resetButton"),
 };
 
@@ -123,13 +125,17 @@ function showAppSections() {
 function updateControls() {
   const total = state.cols * state.rows;
   const preset = EXPORT_PRESETS[state.quality];
+  const firstFile = `ig_upload_${padOrder(1, total)}.${preset.extension}`;
+  const lastFile = `ig_upload_${padOrder(total, total)}.${preset.extension}`;
   els.colsValue.textContent = state.cols;
   els.rowsValue.textContent = state.rows;
   els.colsHelper.textContent = `${state.cols} kolom`;
   els.rowsHelper.textContent = `${state.rows} baris · ${total} foto`;
   els.totalInfo.textContent = `${state.cols} kolom × ${state.rows} baris = ${total} foto`;
   els.qualityHelper.textContent = preset.helper;
-  els.downloadAll.textContent = `Download Semua (${total} foto · ${preset.label})`;
+  els.uploadGuideText.textContent = `Download semua, lalu upload ke Instagram satu per satu mulai dari ${firstFile}. File terakhir adalah ${lastFile}.`;
+  els.downloadAll.textContent = `Download ${total} File (${preset.label})`;
+  els.downloadNote.textContent = `Urutan upload: ${firstFile} dulu, lanjut nomor berikutnya sampai ${lastFile}.`;
 
   els.qualityOptions.forEach((button) => {
     const isActive = button.dataset.quality === state.quality;
@@ -321,19 +327,24 @@ async function renderOrderList() {
 
     const meta = document.createElement("span");
     meta.className = "order-meta";
-    meta.textContent = `Baris ${tile.row + 1}, Kolom ${tile.col + 1}`;
+    meta.textContent = `File: ${filenameForTile(tile)}`;
     text.appendChild(meta);
+
+    const position = document.createElement("span");
+    position.className = "order-meta";
+    position.textContent = `Posisi grid: Baris ${tile.row + 1}, Kolom ${tile.col + 1}`;
+    text.appendChild(position);
 
     if (index === 0 || index === total - 1) {
       const label = document.createElement("span");
       label.className = "order-label";
-      label.textContent = index === 0 ? "Upload pertama" : "Upload terakhir";
+      label.textContent = index === 0 ? "Mulai dari file ini" : "Upload paling akhir";
       text.appendChild(label);
     }
 
     const action = document.createElement("span");
     action.className = "order-action";
-    action.textContent = "Preview";
+    action.textContent = "Lihat tile";
 
     item.append(badge, thumb, text, action);
     fragment.appendChild(item);
