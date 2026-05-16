@@ -1,0 +1,598 @@
+:root {
+  --bg-main: #0d0d0f;
+  --bg-card: #131210;
+  --bg-input: #1c1a15;
+  --border: #222018;
+  --border-mid: #2a2620;
+  --drop-border: #3a3428;
+  --gold: #d4a843;
+  --gold-light: #f5d07a;
+  --gold-dark: #c8922a;
+  --text: #f0ead6;
+  --text-muted: #7a7060;
+  --info-bg: #1a1508;
+  --info-border: #3a2e10;
+  --info-text: #b09050;
+  --danger: #f09478;
+  --shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--bg-main);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at top, rgba(212, 168, 67, 0.08), transparent 34rem),
+    var(--bg-main);
+  color: var(--text);
+  font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+
+button,
+input,
+output {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.app-shell {
+  width: min(100%, 480px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 22px 16px 28px;
+}
+
+.app-header {
+  padding: 8px 2px 20px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: var(--gold);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 8px;
+  color: var(--text);
+  font-family: "DM Serif Display", Georgia, serif;
+  font-size: clamp(2.45rem, 11vw, 3.8rem);
+  font-weight: 400;
+  line-height: 0.95;
+}
+
+.subtitle {
+  max-width: 24rem;
+  margin-bottom: 0;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.guide-section,
+.image-card,
+.controls-card,
+.preview-section,
+.order-section,
+.progress-section {
+  margin-bottom: 20px;
+}
+
+.guide-toggle,
+.drop-zone,
+.image-card,
+.controls-card,
+.info-bar,
+.preview-section,
+.order-section,
+.progress-section {
+  border: 1px solid var(--border);
+  background: rgba(19, 18, 16, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.guide-toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+.chevron {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  color: var(--gold);
+  transition: transform 0.18s ease;
+}
+
+.guide-toggle[aria-expanded="true"] .chevron {
+  transform: rotate(180deg);
+}
+
+.guide-panel {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.28s ease, opacity 0.22s ease;
+}
+
+.guide-panel.open {
+  max-height: 760px;
+  opacity: 1;
+}
+
+.guide-content {
+  margin-top: 10px;
+  border: 1px solid var(--info-border);
+  border-radius: 16px;
+  background: var(--info-bg);
+  padding: 16px;
+  color: var(--info-text);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.guide-content p {
+  margin-bottom: 10px;
+}
+
+.guide-content p:last-of-type {
+  margin-bottom: 14px;
+}
+
+.tips strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--gold-light);
+}
+
+.tips ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.tips li + li {
+  margin-top: 7px;
+}
+
+.upload-section {
+  margin-bottom: 20px;
+}
+
+.drop-zone {
+  display: grid;
+  width: 100%;
+  min-height: 188px;
+  place-items: center;
+  border: 1.5px dashed var(--drop-border);
+  border-radius: 16px;
+  padding: 26px 18px;
+  color: var(--text);
+  text-align: center;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.drop-zone.dragging {
+  border-color: var(--gold);
+  background: #1a1710;
+}
+
+.drop-icon {
+  font-size: 2.55rem;
+  line-height: 1;
+}
+
+.drop-main {
+  margin-top: 12px;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.drop-sub {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.error-message {
+  min-height: 1.3em;
+  margin: 10px 2px 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.image-card,
+.controls-card,
+.preview-section,
+.order-section,
+.progress-section {
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.section-label {
+  margin-bottom: 4px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.image-card h2 {
+  margin: 0 0 10px;
+  overflow-wrap: anywhere;
+  color: var(--gold-light);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.image-card p:last-child {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.stepper-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+.stepper-row + .stepper-row {
+  margin-top: 16px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.stepper-row label {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.stepper-row p {
+  margin-bottom: 0;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+
+.stepper {
+  display: grid;
+  grid-template-columns: 32px minmax(38px, auto) 32px;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-mid);
+  border-radius: 30px;
+  background: var(--bg-input);
+  padding: 6px;
+}
+
+.stepper button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--border-mid);
+  color: var(--gold-light);
+  font-size: 1.05rem;
+  font-weight: 700;
+  transition: opacity 0.16s ease, transform 0.16s ease, background 0.16s ease;
+}
+
+.stepper button:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.stepper output {
+  min-width: 32px;
+  color: var(--gold);
+  font-family: "DM Serif Display", Georgia, serif;
+  font-size: 1.45rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.total-info {
+  margin: 16px 0 0;
+  border-radius: 10px;
+  background: var(--info-bg);
+  padding: 10px 12px;
+  color: var(--gold-light);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.info-bar {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  border-color: var(--info-border);
+  border-radius: 14px;
+  background: var(--info-bg);
+  padding: 12px 14px;
+  color: var(--info-text);
+}
+
+.info-bar p {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.preview-section h2,
+.order-section h2 {
+  margin-bottom: 12px;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.preview-grid {
+  display: grid;
+  gap: 2px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #060606;
+}
+
+.tile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #080806;
+  transition: transform 0.15s ease;
+}
+
+.tile:hover,
+.tile:focus-within {
+  z-index: 1;
+  transform: scale(1.02);
+}
+
+.tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tile-badge {
+  position: absolute;
+  bottom: 7px;
+  left: 7px;
+  display: grid;
+  min-width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgba(212, 168, 67, 0.45);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.75);
+  color: var(--gold-light);
+  font-family: "DM Serif Display", Georgia, serif;
+  font-size: 1.02rem;
+  line-height: 1;
+  backdrop-filter: blur(6px);
+}
+
+.tile-download {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(245, 208, 122, 0.35);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.72);
+  color: var(--gold-light);
+  opacity: 1;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  backdrop-filter: blur(6px);
+}
+
+.order-list {
+  display: grid;
+  gap: 10px;
+}
+
+.order-item {
+  display: grid;
+  grid-template-columns: 38px 40px 1fr;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(28, 26, 21, 0.7);
+  padding: 10px;
+}
+
+.order-badge {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  color: #171205;
+  font-family: "DM Serif Display", Georgia, serif;
+  font-size: 1.12rem;
+}
+
+.order-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #080806;
+}
+
+.order-text {
+  min-width: 0;
+}
+
+.order-text p {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.order-label {
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.progress-section p {
+  margin-bottom: 10px;
+  color: var(--gold-light);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.progress-track {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bg-input);
+}
+
+.progress-fill {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+  transition: width 0.25s ease;
+}
+
+.actions {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.primary-button,
+.secondary-button {
+  width: 100%;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-weight: 700;
+  transition: opacity 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+.primary-button {
+  border: 0;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  color: #171205;
+}
+
+.secondary-button {
+  border: 1px solid var(--border-mid);
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.primary-button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.secondary-button:hover {
+  border-color: var(--drop-border);
+  color: var(--text);
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 3px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tile-download {
+    opacity: 0;
+  }
+
+  .tile:hover .tile-download,
+  .tile:focus-within .tile-download {
+    opacity: 1;
+  }
+}
+
+@media (min-width: 520px) {
+  .app-shell {
+    padding-top: 34px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

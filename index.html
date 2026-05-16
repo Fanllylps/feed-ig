@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Potong gambar besar menjadi grid feed Instagram yang nyambung."
+    />
+    <title>IG Grid Splitter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <p class="eyebrow">Alat feed Instagram</p>
+        <h1>IG Grid Splitter</h1>
+        <p class="subtitle">
+          Potong gambar besar menjadi grid feed Instagram yang nyambung.
+        </p>
+      </header>
+
+      <section class="guide-section" aria-labelledby="guide-title">
+        <button
+          class="guide-toggle"
+          id="guideToggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="guidePanel"
+        >
+          <span id="guide-title">Cara Pakai</span>
+          <span class="chevron" aria-hidden="true">⌄</span>
+        </button>
+        <div class="guide-panel" id="guidePanel">
+          <div class="guide-content">
+            <p>1️⃣ Upload gambar besar yang ingin kamu jadikan feed IG nyambung</p>
+            <p>2️⃣ Atur jumlah kolom (IG pakai 3 kolom) dan baris sesuai kebutuhan</p>
+            <p>3️⃣ Cek preview — pastikan gambar terpotong sesuai keinginan</p>
+            <p>4️⃣ Perhatikan angka di tiap tile — itu urutan upload ke Instagram</p>
+            <p>5️⃣ Klik "Download Semua" → file akan ter-download satu per satu</p>
+            <p>6️⃣ Upload ke Instagram mulai dari file nomor 01, 02, 03, dst</p>
+            <p>7️⃣ Setelah semua terupload, feed Instagram kamu akan terlihat nyambung!</p>
+            <div class="tips">
+              <strong>⚠️ Tips:</strong>
+              <ul>
+                <li>Gunakan gambar resolusi tinggi agar hasil tile tidak pecah</li>
+                <li>Jangan skip urutan upload, harus berurutan dari 01 ke akhir</li>
+                <li>
+                  Preview di app belum tentu 100% sama dengan tampilan IG karena
+                  IG memberi jarak antar foto — tapi gambarnya tetap nyambung
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="upload-section" id="uploadSection">
+        <input
+          class="visually-hidden"
+          id="fileInput"
+          type="file"
+          accept="image/*"
+        />
+        <button class="drop-zone" id="dropZone" type="button">
+          <span class="drop-icon" aria-hidden="true">🖼️</span>
+          <span class="drop-main">Tap untuk upload gambar</span>
+          <span class="drop-sub">atau drag &amp; drop di sini</span>
+        </button>
+        <p class="error-message" id="errorMessage" role="alert"></p>
+      </section>
+
+      <section class="image-card hidden" id="imageInfo" aria-live="polite">
+        <div>
+          <p class="section-label">Gambar aktif</p>
+          <h2 id="fileName">-</h2>
+        </div>
+        <p id="imageResolution">Resolusi: -</p>
+      </section>
+
+      <section class="controls-card hidden" id="controlsSection" aria-label="Pengaturan grid">
+        <div class="stepper-row">
+          <div>
+            <label for="colsValue">Kolom</label>
+            <p id="colsHelper">3 kolom</p>
+          </div>
+          <div class="stepper" role="group" aria-label="Atur kolom">
+            <button id="colsMinus" type="button" aria-label="Kurangi kolom">−</button>
+            <output id="colsValue" for="colsMinus colsPlus">3</output>
+            <button id="colsPlus" type="button" aria-label="Tambah kolom">+</button>
+          </div>
+        </div>
+
+        <div class="stepper-row">
+          <div>
+            <label for="rowsValue">Baris</label>
+            <p id="rowsHelper">3 baris · 9 foto</p>
+          </div>
+          <div class="stepper" role="group" aria-label="Atur baris">
+            <button id="rowsMinus" type="button" aria-label="Kurangi baris">−</button>
+            <output id="rowsValue" for="rowsMinus rowsPlus">3</output>
+            <button id="rowsPlus" type="button" aria-label="Tambah baris">+</button>
+          </div>
+        </div>
+
+        <p class="total-info" id="totalInfo">3 kolom × 3 baris = 9 foto</p>
+      </section>
+
+      <section class="info-bar hidden" id="orderInfo">
+        <span aria-hidden="true">ℹ️</span>
+        <p>Urutan upload dimulai dari kanan bawah agar feed Instagram nyambung.</p>
+      </section>
+
+      <section class="preview-section hidden" id="previewSection" aria-labelledby="previewTitle">
+        <h2 id="previewTitle">Pratinjau Grid</h2>
+        <div class="preview-grid" id="previewGrid"></div>
+      </section>
+
+      <section class="order-section hidden" id="orderSection" aria-labelledby="orderTitle">
+        <h2 id="orderTitle">Urutan Upload</h2>
+        <div class="order-list" id="orderList"></div>
+      </section>
+
+      <section class="progress-section hidden" id="progressSection" aria-live="polite">
+        <p id="progressText">Mendownload 0 dari 0...</p>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </section>
+
+      <section class="actions hidden" id="actionsSection" aria-label="Aksi gambar">
+        <button class="primary-button" id="downloadAll" type="button">
+          Download Semua
+        </button>
+        <button class="secondary-button" id="resetButton" type="button">
+          Ganti Gambar
+        </button>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
