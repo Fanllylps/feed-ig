@@ -187,12 +187,17 @@ h1 {
   line-height: 1.55;
 }
 
-.guide-content p {
-  margin-bottom: 10px;
+.guide-steps {
+  margin: 0;
+  padding-left: 20px;
 }
 
-.guide-content p:last-of-type {
-  margin-bottom: 14px;
+.guide-steps li {
+  padding-left: 3px;
+}
+
+.guide-steps li + li {
+  margin-top: 9px;
 }
 
 .tips strong {
@@ -233,7 +238,15 @@ h1 {
 }
 
 .drop-icon {
-  font-size: 2.4rem;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid var(--border-mid);
+  border-radius: 14px;
+  color: var(--gold-light);
+  font-size: 2rem;
+  font-weight: 300;
   line-height: 1;
 }
 

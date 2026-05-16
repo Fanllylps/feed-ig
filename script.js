@@ -216,7 +216,7 @@ async function renderPreview() {
     const button = document.createElement("button");
     button.className = "tile-download";
     button.type = "button";
-    button.textContent = "⬇";
+    button.textContent = "↓";
     button.setAttribute("aria-label", `Download tile upload ke-${tile.uploadOrder}`);
     button.addEventListener("click", () => downloadTile(tile));
 
@@ -256,7 +256,7 @@ async function renderOrderList() {
     if (index === 0 || index === total - 1) {
       const label = document.createElement("span");
       label.className = "order-label";
-      label.textContent = index === 0 ? "📌 Upload pertama" : "🏁 Upload terakhir";
+      label.textContent = index === 0 ? "Upload pertama" : "Upload terakhir";
       text.appendChild(label);
     }
 
