@@ -77,6 +77,7 @@ const els = {
   cropActions: document.querySelectorAll("[data-crop-action]"),
   orderInfo: document.getElementById("orderInfo"),
   uploadGuideText: document.getElementById("uploadGuideText"),
+  igWarning: document.getElementById("igWarning"),
   firstUploadSection: document.getElementById("firstUploadSection"),
   firstUploadPreview: document.getElementById("firstUploadPreview"),
   previewSection: document.getElementById("previewSection"),
@@ -128,6 +129,7 @@ function showAppSections() {
   setVisible(els.imageInfo, true);
   setVisible(els.controlsSection, true);
   setVisible(els.orderInfo, true);
+  setVisible(els.igWarning, true);
   setVisible(els.firstUploadSection, true);
   setVisible(els.previewSection, true);
   setVisible(els.feedSection, true);
@@ -147,8 +149,8 @@ function updateControls() {
   els.totalInfo.textContent = `${state.cols} kolom × ${state.rows} baris = ${total} foto`;
   els.qualityHelper.textContent = preset.helper;
   els.uploadGuideText.textContent = `Setelah download selesai, buka Instagram dan upload dari file paling atas di galeri: ${firstFile}. Lanjutkan ke nomor berikutnya sampai ${lastFile}.`;
-  els.downloadAll.textContent = `Download ${total} File untuk IG (${preset.label})`;
-  els.downloadNote.textContent = `App akan menyimpan file dengan urutan khusus agar ${firstFile} muncul paling atas di galeri Instagram.`;
+  els.downloadAll.textContent = `Download untuk Upload Satu per Satu (${total} file)`;
+  els.downloadNote.textContent = `Jangan pakai tombol "Pilih" di Instagram. Upload ${firstFile}, posting, lalu lanjut nomor berikutnya sampai ${lastFile}.`;
 
   els.qualityOptions.forEach((button) => {
     const isActive = button.dataset.quality === state.quality;
@@ -581,6 +583,7 @@ function resetState() {
   setVisible(els.imageInfo, false);
   setVisible(els.controlsSection, false);
   setVisible(els.orderInfo, false);
+  setVisible(els.igWarning, false);
   setVisible(els.firstUploadSection, false);
   setVisible(els.previewSection, false);
   setVisible(els.feedSection, false);

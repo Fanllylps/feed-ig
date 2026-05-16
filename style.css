@@ -537,6 +537,28 @@ h1 {
   color: var(--info-text);
 }
 
+.ig-warning {
+  margin-bottom: 18px;
+  border: 1px solid rgba(240, 148, 120, 0.35);
+  border-radius: 14px;
+  background: rgba(54, 20, 13, 0.48);
+  padding: 12px 14px;
+  color: #f2b29f;
+  box-shadow: var(--shadow);
+}
+
+.ig-warning p {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.ig-warning .warning-title {
+  margin-bottom: 5px;
+  color: #ffd0bd;
+  font-weight: 800;
+}
+
 .info-bar p {
   margin: 0;
   font-size: 0.82rem;
