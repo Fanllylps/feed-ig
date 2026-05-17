@@ -51,7 +51,7 @@
               <li>Atur jumlah kolom dan baris sesuai kebutuhan layout.</li>
               <li>Periksa pratinjau untuk memastikan area crop sudah sesuai.</li>
               <li>Gunakan angka pada tile sebagai urutan upload ke Instagram.</li>
-              <li>Klik "Download Semua" untuk mengunduh tile satu per satu.</li>
+              <li>Pakai Mode aman untuk download satu file, upload ke IG, lalu lanjut file berikutnya.</li>
               <li>Upload file ke Instagram mulai dari nomor 01 sampai selesai.</li>
               <li>Setelah semua file terupload, feed akan tampil sebagai satu visual besar.</li>
             </ol>
@@ -191,6 +191,23 @@
             </p>
           </section>
 
+          <section class="safe-upload hidden" id="safeUploadSection">
+            <p class="safe-title">Mode aman upload satu per satu</p>
+            <div class="safe-step">
+              <img id="safeUploadThumb" alt="Preview file langkah upload saat ini" />
+              <div>
+                <p id="safeUploadTitle">Langkah 1</p>
+                <span id="safeUploadMeta">Download file ini, upload ke IG, lalu lanjut.</span>
+              </div>
+            </div>
+            <button class="primary-button" id="safeDownload" type="button">
+              Download File Ini
+            </button>
+            <button class="secondary-button compact" id="safeNext" type="button">
+              Sudah Upload, Lanjut
+            </button>
+          </section>
+
           <section class="progress-section hidden" id="progressSection" aria-live="polite">
             <p id="progressText">Mendownload 0 dari 0...</p>
             <div class="progress-track" aria-hidden="true">
@@ -199,7 +216,7 @@
           </section>
 
           <section class="actions hidden" id="actionsSection" aria-label="Aksi gambar">
-            <button class="primary-button" id="downloadAll" type="button">
+            <button class="secondary-button" id="downloadAll" type="button">
               Download Semua
             </button>
             <button class="secondary-button compact" id="downloadFirst" type="button">

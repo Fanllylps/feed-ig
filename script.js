@@ -48,6 +48,7 @@ const state = {
   downloading: false,
   selectedOrder: null,
   uploadedOrders: new Set(),
+  safeOrder: 1,
 };
 
 const els = {
@@ -78,6 +79,12 @@ const els = {
   orderInfo: document.getElementById("orderInfo"),
   uploadGuideText: document.getElementById("uploadGuideText"),
   igWarning: document.getElementById("igWarning"),
+  safeUploadSection: document.getElementById("safeUploadSection"),
+  safeUploadThumb: document.getElementById("safeUploadThumb"),
+  safeUploadTitle: document.getElementById("safeUploadTitle"),
+  safeUploadMeta: document.getElementById("safeUploadMeta"),
+  safeDownload: document.getElementById("safeDownload"),
+  safeNext: document.getElementById("safeNext"),
   firstUploadSection: document.getElementById("firstUploadSection"),
   firstUploadPreview: document.getElementById("firstUploadPreview"),
   previewSection: document.getElementById("previewSection"),
@@ -130,6 +137,7 @@ function showAppSections() {
   setVisible(els.controlsSection, true);
   setVisible(els.orderInfo, true);
   setVisible(els.igWarning, true);
+  setVisible(els.safeUploadSection, true);
   setVisible(els.firstUploadSection, true);
   setVisible(els.previewSection, true);
   setVisible(els.feedSection, true);
@@ -148,9 +156,9 @@ function updateControls() {
   els.rowsHelper.textContent = `${state.rows} baris · ${total} foto`;
   els.totalInfo.textContent = `${state.cols} kolom × ${state.rows} baris = ${total} foto`;
   els.qualityHelper.textContent = preset.helper;
-  els.uploadGuideText.textContent = `Setelah download selesai, file ${firstFile} dibuat muncul paling atas di galeri. Upload ${firstFile} dulu, posting, lalu lanjut ke ${lastFile}.`;
-  els.downloadAll.textContent = `Download untuk Upload Satu per Satu (${total} file)`;
-  els.downloadNote.textContent = `Checklist di bawah selalu mulai dari ${firstFile}. Jangan pakai tombol "Pilih" di Instagram.`;
+  els.uploadGuideText.textContent = `Pakai Mode aman: download ${firstFile}, upload satu postingan, lalu kembali ke app untuk file berikutnya sampai ${lastFile}.`;
+  els.downloadAll.textContent = `Download Semua (${total} file)`;
+  els.downloadNote.textContent = `Kalau galeri Instagram sering acak, pakai Mode aman di atas. Jangan pakai tombol "Pilih" di Instagram.`;
 
   els.qualityOptions.forEach((button) => {
     const isActive = button.dataset.quality === state.quality;
@@ -165,6 +173,9 @@ function updateControls() {
   els.rowsPlus.disabled = state.rows >= MAX_ROWS || state.downloading;
   els.downloadAll.disabled = state.downloading || state.tiles.length === 0;
   els.downloadFirst.disabled = state.downloading || state.tiles.length === 0;
+  els.safeDownload.disabled = state.downloading || state.tiles.length === 0 || state.safeOrder > total;
+  els.safeNext.disabled = state.downloading || state.tiles.length === 0 || state.safeOrder > total;
+  updateSafeUploadPanel();
 }
 
 function autoRowsForImage(img, cols) {
@@ -281,6 +292,7 @@ async function rebuildTiles() {
   state.tiles = generateTiles(state.image, state.cols, state.rows);
   state.selectedOrder = 1;
   state.uploadedOrders = new Set();
+  state.safeOrder = 1;
   await renderPreview();
   renderFirstUploadPreview();
   renderFeedPreview();
@@ -489,6 +501,38 @@ function filenameForTile(tile) {
   return `ig_upload_${padOrder(tile.uploadOrder, state.tiles.length)}.${preset.extension}`;
 }
 
+function getTileByOrder(uploadOrder) {
+  return state.tiles.find((tile) => tile.uploadOrder === uploadOrder);
+}
+
+function updateSafeUploadPanel() {
+  if (!state.tiles.length) {
+    return;
+  }
+
+  const total = state.tiles.length;
+  const currentOrder = Math.min(state.safeOrder, total);
+  const tile = getTileByOrder(currentOrder);
+
+  if (!tile || state.safeOrder > total) {
+    els.safeUploadTitle.textContent = "Semua langkah selesai";
+    els.safeUploadMeta.textContent = "Kalau feed sudah benar, tidak perlu download lagi.";
+    els.safeDownload.textContent = "Selesai";
+    els.safeNext.textContent = "Selesai";
+    els.safeDownload.disabled = true;
+    els.safeNext.disabled = true;
+    return;
+  }
+
+  els.safeUploadThumb.src = tile.previewUrl;
+  els.safeUploadTitle.textContent = `Langkah ${currentOrder} dari ${total}: ${filenameForTile(tile)}`;
+  els.safeUploadMeta.textContent = "Download file ini saja, upload ke IG, lalu kembali ke app dan klik lanjut.";
+  els.safeDownload.textContent = `Download ${filenameForTile(tile)}`;
+  els.safeNext.textContent = "Sudah Upload, Lanjut";
+  els.safeDownload.disabled = state.downloading;
+  els.safeNext.disabled = state.downloading;
+}
+
 async function downloadTile(tile) {
   if (!tile || state.downloading) {
     return;
@@ -505,6 +549,50 @@ async function downloadFirstTile() {
   const firstTile = state.tiles.find((tile) => tile.uploadOrder === 1);
   if (firstTile) {
     await downloadCanvas(firstTile.canvas, filenameForTile(firstTile));
+  }
+}
+
+async function downloadSafeCurrentTile() {
+  if (state.downloading || state.tiles.length === 0) {
+    return;
+  }
+
+  const tile = getTileByOrder(state.safeOrder);
+  if (!tile) {
+    return;
+  }
+
+  state.downloading = true;
+  selectTile(tile.uploadOrder);
+  setVisible(els.progressSection, true);
+  setProgress(0, 1, false, filenameForTile(tile));
+  updateControls();
+
+  try {
+    await downloadCanvas(tile.canvas, filenameForTile(tile));
+    setProgress(1, 1, true);
+  } catch (error) {
+    els.progressText.textContent = "Download gagal. Coba ulangi.";
+  } finally {
+    state.downloading = false;
+    updateControls();
+  }
+}
+
+function markSafeUploadDone() {
+  if (!state.tiles.length || state.safeOrder > state.tiles.length) {
+    return;
+  }
+
+  state.uploadedOrders.add(state.safeOrder);
+  state.safeOrder += 1;
+  renderOrderList();
+  updateControls();
+  updateSafeUploadPanel();
+
+  const nextTile = getTileByOrder(state.safeOrder);
+  if (nextTile) {
+    selectTile(nextTile.uploadOrder);
   }
 }
 
@@ -567,6 +655,7 @@ function resetState() {
   state.downloading = false;
   state.selectedOrder = null;
   state.uploadedOrders = new Set();
+  state.safeOrder = 1;
 
   els.fileInput.value = "";
   els.fileName.textContent = "-";
@@ -585,6 +674,7 @@ function resetState() {
   setVisible(els.controlsSection, false);
   setVisible(els.orderInfo, false);
   setVisible(els.igWarning, false);
+  setVisible(els.safeUploadSection, false);
   setVisible(els.firstUploadSection, false);
   setVisible(els.previewSection, false);
   setVisible(els.feedSection, false);
@@ -749,6 +839,8 @@ function bindEvents() {
   });
   els.downloadAll.addEventListener("click", downloadAllTiles);
   els.downloadFirst.addEventListener("click", downloadFirstTile);
+  els.safeDownload.addEventListener("click", downloadSafeCurrentTile);
+  els.safeNext.addEventListener("click", markSafeUploadDone);
   els.resetButton.addEventListener("click", resetState);
 }
 

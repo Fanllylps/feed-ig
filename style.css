@@ -559,6 +559,53 @@ h1 {
   font-weight: 800;
 }
 
+.safe-upload {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(245, 208, 122, 0.32);
+  border-radius: 16px;
+  background: rgba(26, 21, 8, 0.78);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.safe-title {
+  margin: 0;
+  color: var(--gold-light);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.safe-step {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.safe-step img {
+  width: 74px;
+  height: 74px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #080806;
+}
+
+.safe-step p {
+  margin: 0 0 4px;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.safe-step span {
+  color: var(--info-text);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
 .info-bar p {
   margin: 0;
   font-size: 0.82rem;
