@@ -148,9 +148,9 @@ function updateControls() {
   els.rowsHelper.textContent = `${state.rows} baris · ${total} foto`;
   els.totalInfo.textContent = `${state.cols} kolom × ${state.rows} baris = ${total} foto`;
   els.qualityHelper.textContent = preset.helper;
-  els.uploadGuideText.textContent = `Setelah download selesai, buka Instagram dan upload dari file paling atas di galeri: ${firstFile}. Lanjutkan ke nomor berikutnya sampai ${lastFile}.`;
+  els.uploadGuideText.textContent = `Setelah download selesai, file ${firstFile} dibuat muncul paling atas di galeri. Upload ${firstFile} dulu, posting, lalu lanjut ke ${lastFile}.`;
   els.downloadAll.textContent = `Download untuk Upload Satu per Satu (${total} file)`;
-  els.downloadNote.textContent = `Jangan pakai tombol "Pilih" di Instagram. Upload ${firstFile}, posting, lalu lanjut nomor berikutnya sampai ${lastFile}.`;
+  els.downloadNote.textContent = `Checklist di bawah selalu mulai dari ${firstFile}. Jangan pakai tombol "Pilih" di Instagram.`;
 
   els.qualityOptions.forEach((button) => {
     const isActive = button.dataset.quality === state.quality;
@@ -373,7 +373,7 @@ function renderFeedPreview() {
 async function renderOrderList() {
   els.orderList.innerHTML = "";
   const total = state.tiles.length;
-  const sorted = [...state.tiles].sort((a, b) => b.uploadOrder - a.uploadOrder);
+  const sorted = [...state.tiles].sort((a, b) => a.uploadOrder - b.uploadOrder);
   const fragment = document.createDocumentFragment();
 
   sorted.forEach((tile, index) => {
@@ -511,8 +511,8 @@ async function downloadFirstTile() {
 function setProgress(done, total, complete = false, filename = "") {
   const percent = total > 0 ? Math.round((done / total) * 100) : 0;
   els.progressText.textContent = complete
-    ? "Download selesai. Buka Instagram, pilih file paling atas, lalu lanjut ke bawah."
-    : `Menyimpan ${done} dari ${total}${filename ? `: ${filename}` : ""}...`;
+    ? "Download selesai. Buka Instagram, pilih file paling atas, lalu upload satu per satu."
+    : `Menyiapkan urutan galeri IG ${done} dari ${total}${filename ? `: ${filename}` : ""}...`;
   els.progressFill.style.width = `${percent}%`;
 }
 
@@ -526,7 +526,8 @@ async function downloadAllTiles() {
   setProgress(0, state.tiles.length);
   updateControls();
 
-  const sorted = [...state.tiles].sort((a, b) => a.uploadOrder - b.uploadOrder);
+  // Download dari nomor akhir dulu agar ig_upload_01 menjadi file terbaru di galeri IG.
+  const sorted = [...state.tiles].sort((a, b) => b.uploadOrder - a.uploadOrder);
 
   try {
     for (let index = 0; index < sorted.length; index += 1) {
