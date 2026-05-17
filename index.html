@@ -28,7 +28,7 @@
         </div>
         <div class="header-pills" aria-label="Ringkasan fitur">
           <span>3 kolom IG</span>
-          <span>PNG kotak</span>
+          <span>Grid 3:4</span>
           <span>Tanpa login</span>
         </div>
       </header>
@@ -122,6 +122,23 @@
 
             <p class="total-info" id="totalInfo">3 kolom × 3 baris = 9 foto</p>
 
+            <div class="format-control" aria-label="Format profil Instagram">
+              <div>
+                <p class="control-title">Format grid IG</p>
+                <p id="formatHelper">Untuk profil Instagram terbaru yang memakai thumbnail 3:4.</p>
+              </div>
+              <div class="format-options" role="group" aria-label="Pilih format grid">
+                <button type="button" class="format-option active" data-format="profile">
+                  <span>IG terbaru</span>
+                  <small>3:4 portrait</small>
+                </button>
+                <button type="button" class="format-option" data-format="square">
+                  <span>Square lama</span>
+                  <small>1:1 kotak</small>
+                </button>
+              </div>
+            </div>
+
             <div class="preset-control" aria-label="Preset ukuran grid">
               <p class="control-title">Preset cepat</p>
               <div class="preset-options">
@@ -161,7 +178,7 @@
               </div>
               <div class="quality-options" role="group" aria-label="Pilih kualitas hasil">
                 <button type="button" class="quality-option" data-quality="instagram">
-                  <span>IG 1080</span>
+                  <span>Standar</span>
                   <small>File ringan</small>
                 </button>
                 <button type="button" class="quality-option" data-quality="high">

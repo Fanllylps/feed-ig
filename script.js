@@ -3,13 +3,29 @@ const MAX_COLS = 9;
 const MIN_ROWS = 1;
 const MAX_ROWS = 20;
 const DEFAULT_COLS = 3;
+const DEFAULT_FORMAT = "profile";
 const DOWNLOAD_DELAY = 400;
 const DEFAULT_QUALITY = "lossless";
+
+const GRID_FORMATS = {
+  profile: {
+    label: "IG terbaru",
+    ratioW: 3,
+    ratioH: 4,
+    helper: "Untuk profil Instagram terbaru yang memakai thumbnail 3:4.",
+  },
+  square: {
+    label: "Square lama",
+    ratioW: 1,
+    ratioH: 1,
+    helper: "Untuk akun/tampilan lama yang masih memakai grid kotak 1:1.",
+  },
+};
 
 const EXPORT_PRESETS = {
   instagram: {
     label: "Standar",
-    maxSize: 1080,
+    maxWidth: 1080,
     mime: "image/jpeg",
     quality: 0.95,
     extension: "jpg",
@@ -17,7 +33,7 @@ const EXPORT_PRESETS = {
   },
   high: {
     label: "Tajam",
-    maxSize: 2160,
+    maxWidth: 2160,
     mime: "image/jpeg",
     quality: 0.98,
     extension: "jpg",
@@ -25,7 +41,7 @@ const EXPORT_PRESETS = {
   },
   lossless: {
     label: "Maksimal",
-    maxSize: null,
+    maxWidth: null,
     mime: "image/png",
     quality: null,
     extension: "png",
@@ -36,6 +52,7 @@ const EXPORT_PRESETS = {
 const state = {
   cols: DEFAULT_COLS,
   rows: null,
+  format: DEFAULT_FORMAT,
   quality: DEFAULT_QUALITY,
   cropOffsetX: 0,
   cropOffsetY: 0,
@@ -72,6 +89,8 @@ const els = {
   colsHelper: document.getElementById("colsHelper"),
   rowsHelper: document.getElementById("rowsHelper"),
   totalInfo: document.getElementById("totalInfo"),
+  formatHelper: document.getElementById("formatHelper"),
+  formatOptions: document.querySelectorAll(".format-option"),
   qualityHelper: document.getElementById("qualityHelper"),
   qualityOptions: document.querySelectorAll(".quality-option"),
   presetOptions: document.querySelectorAll(".preset-options button"),
@@ -148,6 +167,7 @@ function showAppSections() {
 function updateControls() {
   const total = state.cols * state.rows;
   const preset = EXPORT_PRESETS[state.quality];
+  const format = GRID_FORMATS[state.format];
   const firstFile = `ig_upload_${padOrder(1, total)}.${preset.extension}`;
   const lastFile = `ig_upload_${padOrder(total, total)}.${preset.extension}`;
   els.colsValue.textContent = state.cols;
@@ -155,10 +175,18 @@ function updateControls() {
   els.colsHelper.textContent = `${state.cols} kolom`;
   els.rowsHelper.textContent = `${state.rows} baris · ${total} foto`;
   els.totalInfo.textContent = `${state.cols} kolom × ${state.rows} baris = ${total} foto`;
+  els.formatHelper.textContent = format.helper;
   els.qualityHelper.textContent = preset.helper;
   els.uploadGuideText.textContent = `Pakai Mode aman: download ${firstFile}, upload satu postingan, lalu kembali ke app untuk file berikutnya sampai ${lastFile}.`;
   els.downloadAll.textContent = `Download Semua (${total} file)`;
   els.downloadNote.textContent = `Kalau galeri Instagram sering acak, pakai Mode aman di atas. Jangan pakai tombol "Pilih" di Instagram.`;
+
+  els.formatOptions.forEach((button) => {
+    const isActive = button.dataset.format === state.format;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+    button.disabled = state.downloading;
+  });
 
   els.qualityOptions.forEach((button) => {
     const isActive = button.dataset.quality === state.quality;
@@ -182,10 +210,37 @@ function autoRowsForImage(img, cols) {
   return clamp(Math.round((img.naturalHeight / img.naturalWidth) * cols), MIN_ROWS, MAX_ROWS);
 }
 
-function getExportTileSize(sourceTileSize) {
+function getTileFormat() {
+  return GRID_FORMATS[state.format] || GRID_FORMATS.profile;
+}
+
+function getTileAspectRatio() {
+  const format = getTileFormat();
+  return format.ratioW / format.ratioH;
+}
+
+function updateTileAspectCss() {
+  const format = getTileFormat();
+  document.documentElement.style.setProperty("--tile-ratio", `${format.ratioW} / ${format.ratioH}`);
+}
+
+function getExportSize(sourceW, sourceH) {
   const preset = EXPORT_PRESETS[state.quality];
-  const maxSize = preset.maxSize || sourceTileSize;
-  return Math.max(1, Math.floor(Math.min(sourceTileSize, maxSize)));
+  if (!preset.maxWidth) {
+    return {
+      width: Math.max(1, Math.floor(sourceW)),
+      height: Math.max(1, Math.floor(sourceH)),
+    };
+  }
+
+  const maxWidth = preset.maxWidth;
+  const maxHeight = maxWidth / getTileAspectRatio();
+  const scale = Math.min(1, maxWidth / sourceW, maxHeight / sourceH);
+
+  return {
+    width: Math.max(1, Math.floor(sourceW * scale)),
+    height: Math.max(1, Math.floor(sourceH * scale)),
+  };
 }
 
 function resetCropAdjustments() {
@@ -203,7 +258,7 @@ function clampCropAdjustments() {
 function generateTiles(imgElement, cols, rows) {
   const imgW = imgElement.naturalWidth;
   const imgH = imgElement.naturalHeight;
-  const targetRatio = cols / rows;
+  const targetRatio = (cols * getTileAspectRatio()) / rows;
   const imgRatio = imgW / imgH;
 
   let cropW = imgW;
@@ -224,31 +279,32 @@ function generateTiles(imgElement, cols, rows) {
   cropX = clamp(cropX, 0, imgW - cropW);
   cropY = clamp(cropY, 0, imgH - cropH);
 
-  const sourceTileSize = Math.max(1, Math.floor(Math.min(cropW / cols, cropH / rows)));
-  const outputTileSize = getExportTileSize(sourceTileSize);
+  const sourceTileW = cropW / cols;
+  const sourceTileH = cropH / rows;
+  const outputSize = getExportSize(sourceTileW, sourceTileH);
   const tiles = [];
 
   for (let row = 0; row < rows; row += 1) {
     for (let col = 0; col < cols; col += 1) {
       const canvas = document.createElement("canvas");
-      canvas.width = outputTileSize;
-      canvas.height = outputTileSize;
+      canvas.width = outputSize.width;
+      canvas.height = outputSize.height;
 
       const ctx = canvas.getContext("2d");
       if (EXPORT_PRESETS[state.quality].mime === "image/jpeg") {
         ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, outputTileSize, outputTileSize);
+        ctx.fillRect(0, 0, outputSize.width, outputSize.height);
       }
       ctx.drawImage(
         imgElement,
         cropX + col * (cropW / cols),
         cropY + row * (cropH / rows),
-        cropW / cols,
-        cropH / rows,
+        sourceTileW,
+        sourceTileH,
         0,
         0,
-        outputTileSize,
-        outputTileSize
+        outputSize.width,
+        outputSize.height
       );
 
       tiles.push({
@@ -256,7 +312,8 @@ function generateTiles(imgElement, cols, rows) {
         row,
         col,
         uploadOrder: (rows - row) * cols - col,
-        outputSize: outputTileSize,
+        outputWidth: outputSize.width,
+        outputHeight: outputSize.height,
       });
     }
   }
@@ -288,6 +345,7 @@ async function rebuildTiles() {
     return;
   }
 
+  updateTileAspectCss();
   revokePreviewUrls();
   state.tiles = generateTiles(state.image, state.cols, state.rows);
   state.selectedOrder = 1;
@@ -646,6 +704,7 @@ function resetState() {
 
   state.cols = DEFAULT_COLS;
   state.rows = null;
+  state.format = DEFAULT_FORMAT;
   state.quality = DEFAULT_QUALITY;
   resetCropAdjustments();
   state.image = null;
@@ -704,6 +763,7 @@ async function loadImageFile(file) {
     state.fileName = file.name;
     state.cols = DEFAULT_COLS;
     state.rows = autoRowsForImage(img, state.cols);
+    state.format = DEFAULT_FORMAT;
     resetCropAdjustments();
 
     els.fileName.textContent = state.fileName;
@@ -747,6 +807,16 @@ function applyGridPreset(cols, rows) {
 
   state.cols = clamp(cols, MIN_COLS, MAX_COLS);
   state.rows = clamp(rows, MIN_ROWS, MAX_ROWS);
+  resetCropAdjustments();
+  rebuildTiles();
+}
+
+function changeFormat(format) {
+  if (!GRID_FORMATS[format] || state.downloading || state.format === format) {
+    return;
+  }
+
+  state.format = format;
   resetCropAdjustments();
   rebuildTiles();
 }
@@ -833,6 +903,9 @@ function bindEvents() {
   });
   els.cropActions.forEach((button) => {
     button.addEventListener("click", () => adjustCrop(button.dataset.cropAction));
+  });
+  els.formatOptions.forEach((button) => {
+    button.addEventListener("click", () => changeFormat(button.dataset.format));
   });
   els.qualityOptions.forEach((button) => {
     button.addEventListener("click", () => changeQuality(button.dataset.quality));
